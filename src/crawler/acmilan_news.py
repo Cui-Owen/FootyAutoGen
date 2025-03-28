@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from .utils import get_soup, load_config
+from crawler.utils import load_config
 
 config = load_config()
 
