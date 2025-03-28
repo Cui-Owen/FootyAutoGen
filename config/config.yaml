@@ -8,3 +8,4 @@ headers:
 crawler:
   espn_url: "https://www.espn.com/soccer/"
   football_italia_milan_url: "https://football-italia.net/category/teams/milan/"
+  acmilan_news_url: "https://cdn-acmilan-api-prod.netcosports.com/kp/blind/items"

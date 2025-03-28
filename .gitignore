@@ -172,8 +172,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# === Custom folders to ignore ===
-data/
-media/
-config/

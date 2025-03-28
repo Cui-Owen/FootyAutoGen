@@ -1,11 +1,10 @@
 import time
 from bs4 import Comment
-from .utils import get_soup, load_config
+from crawler.utils import get_soup, load_config
 
 config = load_config()
 
 
-# 获取新闻列表
 def fetch_articles(limit=3):
     headers = config.get("headers", {})
     base_url = config["crawler"]["football_italia_milan_url"]
@@ -32,7 +31,6 @@ def fetch_articles(limit=3):
     return articles
 
 
-# 利用注释块提取文章正文
 def get_content_from_article(soup, marker="Article Start"):
     comments = soup.find_all(string=lambda text: isinstance(text, Comment))
     for comment in comments:
@@ -45,7 +43,6 @@ def get_content_from_article(soup, marker="Article Start"):
     return None
 
 
-# 获取单篇文章正文
 def fetch_article_content(url, headers):
     try:
         detail_soup = get_soup(url, headers=headers)
