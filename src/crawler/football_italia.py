@@ -1,30 +1,21 @@
 import time
-from pathlib import Path
-import yaml
-from .utils import get_soup, extract_content_from_comments
-
-
-# 加载配置
-def load_config():
-    config_path = Path(__file__).resolve().parents[2] / "config" / "config.yaml"
-    with config_path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
+from bs4 import Comment
+from .utils import get_soup, load_config
 
 config = load_config()
 
 
 # 获取新闻列表
-def fetch_latest_articles(limit=3):
+def fetch_articles(limit=3):
     headers = config.get("headers", {})
     base_url = config["crawler"]["football_italia_milan_url"]
 
     soup = get_soup(base_url, headers=headers)
-    articles = soup.find_all("article")
+    article_soup = soup.find_all("article")
 
-    news_list = []
+    articles = []
 
-    for article in articles[:limit]:
+    for article in article_soup[:limit]:
         h4_tag = article.find("h4")
         if not (h4_tag and h4_tag.a):
             continue
@@ -34,19 +25,31 @@ def fetch_latest_articles(limit=3):
 
         content = fetch_article_content(link, headers)
 
-        news_list.append({"title": title, "url": link, "content": content})
+        articles.append({"title": title, "url": link, "content": content})
 
-        print(f"✅ 已抓取新闻: {title}")
         time.sleep(1)
 
-    return news_list
+    return articles
+
+
+# 利用注释块提取文章正文
+def get_content_from_article(soup, marker="Article Start"):
+    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
+    for comment in comments:
+        if marker in comment:
+            content_html = comment.find_next_siblings()
+            content_paragraphs = [
+                tag.get_text(strip=True) for tag in content_html if tag.name == "p"
+            ]
+            return "\n".join(content_paragraphs)
+    return None
 
 
 # 获取单篇文章正文
 def fetch_article_content(url, headers):
     try:
         detail_soup = get_soup(url, headers=headers)
-        content = extract_content_from_comments(detail_soup)
+        content = get_content_from_article(detail_soup)
 
         if not content:
             return "⚠️ 正文注释块未找到"

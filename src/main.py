@@ -1,4 +1,5 @@
-from crawler.football_italia import fetch_latest_articles
+from crawler.football_italia import fetch_articles as fetch_football_italia
+from crawler.acmilan_news import fetch_articles as fetch_acmilan_news
 from processor.translator import Translator
 from storage.database import get_db_session
 from storage.models import Article
@@ -6,7 +7,7 @@ from storage.models import Article
 
 def main():
     translator = Translator()
-    articles = fetch_latest_articles(limit=3)
+    articles = fetch_football_italia(limit=3)
 
     with next(get_db_session()) as db:
         for article in articles:
